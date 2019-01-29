@@ -1,4 +1,30 @@
-geoscalePhylo<-function(tree, ages, direction="rightwards",units=c("Period", "Epoch", "Age"), boxes="Age", tick.scale="myr", user.scale, cex.age=0.3, cex.ts=0.3, cex.tip=0.3, width=1, label.offset,ts.col=TRUE, vers="ICS2013", x.lim, quat.rm=FALSE,erotate,arotate,urotate,...){
+geoscalePhylo<-function(
+		tree, 
+		ages, 
+		direction="rightwards",
+		#
+		units=c("Period", "Epoch", "Age"), 
+		boxes="Age", 
+		tick.scale="myr", 
+		user.scale=NULL, 
+		#
+		cex.age=0.3, 
+		cex.ts=0.3, 
+		cex.tip=0.3, 
+		#
+		width=1, 
+		label.offset,
+		ts.col=TRUE, 
+		vers="ICS2013",
+		#
+		x.lim, 
+		quat.rm=FALSE,
+		#
+		erotate,
+		arotate,
+		urotate,
+		...){
+	###############################################
   
   options <- as.list(match.call())
    if(any(names(options) == "type")){
