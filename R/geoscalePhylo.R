@@ -1,3 +1,6 @@
+
+
+
 geoscalePhylo<-function(
 		tree, 
 		ages, 
@@ -424,87 +427,197 @@ geoscalePhylo<-function(
 			}
 		
 	} else{
-
-    # Plotting the tree horizontally
-    
-  # PLOT 1 - TIMESCALE
-    par(fig=c(0,1,0,ts.width))
-    par(mar=c(1,3,0,2))
-
-	    plot.phylo(tree,plot=FALSE,no.margin=T,x.lim=x.lim,direction="rightwards",cex=cex.tip,...)
-    
-        timescale.rescaled.names <- timescale.rescaled
-         timescale.rescaled.names <- timescale.rescaled.names[timescale.rescaled.names[,"End"] > par()$usr[1],]
-          timescale.rescaled.names[timescale.rescaled.names[,"Start"] < par()$usr[1],"Start"] <- par()$usr[1]
-    
-        if(min(timescale.rescaled.names[,"End"]) < par()$usr[2]){
-          timescale.rescaled.names <- timescale.rescaled.names[timescale.rescaled.names[,"Start"] < par()$usr[2],]
-           timescale.rescaled.names[timescale.rescaled.names[,"End"] > par()$usr[2],"End"] <- par()$usr[2]
-        }
-            timescale.rescaled.names[,"Midpoint"] <-(timescale.rescaled.names[,"Start"] + timescale.rescaled.names[,"End"])/2
-    
-       unit.depths <- tscale.data[units,"Depth"]
-        if(tick.scale == "n" & tick.scale == "no"){
-          unit.depths <- c(unit.depths,0.5)          
-        } else if(length(units) <= 3){
-          unit.depths <- c(unit.depths,2)
-        } else if(length(units) > 3) {
-          unit.depths <- c(unit.depths,2)
-        }
-     
-         unit.depths <- cumsum(unit.depths/sum(unit.depths))
-          unit.depths<-c(par()$usr[4],par()$usr[4]-(unit.depths*(par()$usr[4]-par()$usr[3])))
-    
-       depth <- unit.depths[length(unit.depths) - 1] - unit.depths[length(unit.depths)]
-    
-    if(tick.scale != "n" && tick.scale != "no"){
-      text(age.position,(unit.depths[length(unit.depths)]+depth*0.3),age.name, cex=cex.age,srt=90)
-  	  segments(tick.position,(unit.depths[length(unit.depths)-1]),tick.position,(unit.depths[length(unit.depths)]+depth*0.6),lwd=lwd,col=col)
-    }
-
-    for(t in 1:length(units)){
- 	
- 	    if(units[t] == "User"){
- 	    	tscale<-user.scale
-  	    	tscale[,c("Start","End","Midpoint")] <- root.age - tscale[,c("Start","End","Midpoint")]
-     	    	tscale.names <- tscale
-      } else {
- 	      tscale<-subset(timescale.rescaled,timescale.rescaled[,"Type"] == units[t])
- 	      tscale.names<-subset(timescale.rescaled.names,timescale.rescaled.names[,"Type"] == units[t])
- 	    }
+		###################################################
+		# Plotting the tree horizontally
+		#
+		# PLOT 1 - TIMESCALE
+		par(fig=c(0,1,0,ts.width),
+			mar=c(1,3,0,2)
+			)
+		#####
+		plot.phylo(tree,
+			plot=FALSE,
+			no.margin=TRUE,
+			x.lim=x.lim,
+			direction="rightwards",
+			cex=cex.tip,
+			...)
+		timescale.rescaled.names <- timescale.rescaled
+		timescale.rescaled.names <- timescale.rescaled.names[
+			timescale.rescaled.names[,"End"] > par()$usr[1],
+			]
+		namesSelectorStart <- timescale.rescaled.names[,"Start"] < par()$usr[1]
+		timescale.rescaled.names[namesSelectorStart,"Start"] <- par()$usr[1]
+		#
+		if(min(timescale.rescaled.names[,"End"]) < par()$usr[2]){
+			nameSelectorMinStart <- timescale.rescaled.names[,"Start"] < par()$usr[2]
+			timescale.rescaled.names <- timescale.rescaled.names[nameSelectorMinStart,]
+			nameSelectorMinEnd <- timescale.rescaled.names[,"End"] > par()$usr[2]
+			timescale.rescaled.names[nameSelectorMinEnd,"End"] <- par()$usr[2]
+			}
+		#
+		timescale.rescaled.names[,"Midpoint"] <- (
+			timescale.rescaled.names[,"Start"] 
+				+ timescale.rescaled.names[,"End"]
+			)/2
+		#
+		unit.depths <- tscale.data[units,"Depth"]
+		#
+		if(tick.scale == "n" & tick.scale == "no"){
+			unit.depths <- c(unit.depths,0.5)					
+		} else {
+			if(length(units) <= 3){
+				unit.depths <- c(unit.depths,2)
+			} else{
+				if(length(units) > 3) {
+					unit.depths <- c(unit.depths,2)
+					}
+				}
+			}
+		#
+		unit.depths <- cumsum(unit.depths/sum(unit.depths))
+		#
+		unit.depths<-c(par()$usr[4],
+			par()$usr[4]-(unit.depths*(par()$usr[4]-par()$usr[3])))
+		#
+		depth <- unit.depths[
+			length(unit.depths) - 1] 
+				- unit.depths[length(unit.depths)
+			]
+		#
+		if(tick.scale != "n" && tick.scale != "no"){
+			text(age.position,
+				(unit.depths[length(unit.depths)]+depth*0.3),
+				age.name, 
+				cex=cex.age,
+				srt=90
+				)
+			segments(
+				tick.position,
+				(unit.depths[length(unit.depths)-1]),
+				tick.position,
+				(unit.depths[length(unit.depths)]+depth*0.6),
+				lwd=lwd,
+				col=col
+				)
+			}
+		for(t in 1:length(units)){
+ 			if(units[t] == "User"){
+				tscale<-user.scale
+				tscale[,StartEndMid] <- root.age - tscale[,StartEndMid]
+		 		tscale.names <- tscale
+			} else {
+ 				tscale<-subset(timescale.rescaled,
+					timescale.rescaled[,"Type"] == units[t])
+ 				tscale.names<-subset(timescale.rescaled.names,
+					timescale.rescaled.names[,"Type"] == units[t])
+				}
  	 	
- 	    if(ts.col == TRUE & units[t] != "User"){rect(tscale[,"Start"],unit.depths[t],tscale[,"End"],unit.depths[t+1],col=rgb(tscale[,"Col_R"],tscale[,"Col_G"],tscale[,"Col_B"],maxColorValue=255))
- 		    } else rect(tscale[,"Start"],unit.depths[t],tscale[,"End"],unit.depths[t+1],col="white")
-          text(tscale.names[,"Midpoint"],(unit.depths[t] + unit.depths[t+1])/2,tscale.names[,"Name"],cex=cex.ts*tscale.data[match(units[t],rownames(tscale.data)),"size"],srt=tscale.data[match(units[t],rownames(tscale.data)),"srt"])
-    }
- 
-  ## PLOT 2: PHYLOGENY
-
-    par(fig=c(0,1,ts.width,1),new=T)
-    par(mar=c(0,3,2,2))
-  
-      plot.phylo(tree,plot=FALSE,no.margin=T,x.lim=x.lim,cex=cex.tip,...)
-        lastPP <- get("last_plot.phylo", envir = .PlotPhyloEnv)
-  
-      if (!missing(boxes) && boxes != "no" && boxes !="n"){
-        if(boxes == "User"){
-          tscale <- root.age - user.scale[,c("Start","End")]
-        } else {tscale<-subset(timescale.rescaled,timescale.rescaled[,"Type"] == boxes)} 
-  	        rect(tscale[,"Start"],par()$usr[3],tscale[,"End"],par()$usr[4],col=c("grey90","white"),border=NA)}
-
-    par(fig=c(0,1,ts.width,1),new=T)
-    par(mar=c(0,3,2,2))
-  
-      plot.phylo(tree,label.offset=offset,edge.width=width,no.margin=T,x.lim=x.lim,cex=cex.tip,...)
-        if (ranges == TRUE){
-          par(lend=1); segments(taxon.ranges[,"FAD"],lastPP$yy[c(1:length(tree$tip.label))],taxon.ranges[,"LAD"],lastPP$yy[c(1:length(tree$tip.label))],col="black",lwd=width*2)
-        }
-  
-  if(units[1] == "User"){
-    segments(min(root.age - user.scale[,"Start"]),par()$usr[3],max(root.age - user.scale[,"End"]),par()$usr[3])
-  } else {      
-    segments(min(timescale.rescaled[timescale.rescaled[,"Type"] == units[1],"Start"]),par()$usr[3],max(timescale.rescaled[timescale.rescaled[,"Type"] == units[1],"End"]),par()$usr[3])
-  }
-  
-  }
-}
+ 			if(ts.col  & units[t] != "User"){
+				rect(tscale[,"Start"],
+					unit.depths[t],
+					tscale[,"End"],
+					unit.depths[t+1],
+					col=rgb(tscale[,"Col_R"],
+						tscale[,"Col_G"],
+						tscale[,"Col_B"],
+						maxColorValue=255
+						)
+					)
+			} else {
+				rect(tscale[,"Start"],
+					unit.depths[t],
+					tscale[,"End"],
+					unit.depths[t+1],
+					col="white"
+					)
+				text(tscale.names[,"Midpoint"],
+					(unit.depths[t] + unit.depths[t+1])/2,
+					tscale.names[,"Name"],
+					cex=cex.ts*tscale.data[
+						match(units[t],rownames(tscale.data)),"size"
+						],
+					srt=tscale.data[
+						match(units[t],rownames(tscale.data)),"srt"
+						]
+					)
+				}
+			}
+		##############
+		## PLOT 2: PHYLOGENY
+		#############
+		par(fig=c(0,1,ts.width,1),
+			mar=c(0,3,2,2),
+			new=TRUE)
+		#####
+		plot.phylo(tree,
+			plot=FALSE,
+			no.margin=TRUE,
+			x.lim=x.lim,
+			cex=cex.tip,
+			...)
+		#
+		lastPP <- get("last_plot.phylo",
+			envir = .PlotPhyloEnv)
+	
+		if (!missing(boxes) && boxes != "no" && boxes !="n"){
+			if(boxes == "User"){
+				tscale <- root.age - user.scale[,c("Start","End")]
+			} else {
+				tscale<-subset(timescale.rescaled,
+					timescale.rescaled[,"Type"] == boxes)
+					} 
+			rect(tscale[,"Start"],
+				par()$usr[3],
+				tscale[,"End"],
+				par()$usr[4],
+				col=c("grey90","white"),
+				border=NA
+				)
+			}
+		################
+		par(fig=c(0,1,ts.width,1),
+			mar=c(0,3,2,2),
+			new=TRUE)		
+		#############
+		plot.phylo(tree,
+			label.offset=offset,
+			edge.width=width,
+			no.margin=TRUE,
+			x.lim=x.lim,
+			cex=cex.tip,
+			...
+			)
+		#
+		if (ranges){
+			par(lend=1)
+			segments(taxon.ranges[,"FAD"],
+				lastPP$yy[c(1:length(tree$tip.label))],
+				taxon.ranges[,"LAD"],
+				lastPP$yy[c(1:length(tree$tip.label))],
+				col="black",
+				lwd=width*2
+				)
+			}
+		if(units[1] == "User"){
+			segments(
+				min(root.age - user.scale[,"Start"]),
+				par()$usr[3],
+				max(root.age - user.scale[,"End"]),
+				par()$usr[3]
+				)
+		} else {			
+			segments(
+				min(timescale.rescaled[
+					timescale.rescaled[,"Type"] == units[1],"Start"
+					]),
+				par()$usr[3],
+				max(timescale.rescaled[
+					timescale.rescaled[,"Type"] == units[1],"End"
+					]),
+				par()$usr[3]
+				)
+			}
+	
+		}
+	}
