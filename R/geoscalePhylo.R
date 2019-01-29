@@ -1,3 +1,6 @@
+
+
+
 geoscalePhylo<-function(
 		tree, 
 		ages, 
@@ -100,97 +103,116 @@ geoscalePhylo<-function(
 	boxes[boxes == "System"] <- "Period"	
 	boxes[boxes == "Stage"] <- "Age"
 	#		
-      
-  if(length(units) == 1){
-    ts.width=0.15
-  } else if(length(units) == 2){
-    ts.width=0.2
-  } else if(length(units) >= 3){
-    ts.width=0.25
-  }
-
-  if(ranges == TRUE && missing(ages) == FALSE){
-     missing.tip.names <- setdiff(tree$tip.label,row.names(ages))
-      if(length(missing.tip.names) > 0){            
-        cat(paste("\n",missing.tip.names,"not present in ages file, ranges set to FALSE"))
-        cat("\n ranges set to FALSE")
-          ranges <- FALSE
-      }    
-  }
-   
-  timescales <- NULL
-   data(timescales,envir=environment())
-    timescale <- timescales[[vers]]
-      if(quat.rm == TRUE){
-       timescale[(timescale[,"Midpoint"] < 3),"Name"] <- NA
-      }
-  
-  tscale.data<-matrix(ncol=3,nrow=6)
-    colnames(tscale.data) <-c("srt","Depth","size")
-    rownames(tscale.data) <-c("Eon","Era","Period","Epoch","Age","User")
-      if(direction == "upwards"){
-        tscale.data[,"srt"] <- c(90,90,90,0,0,0)
-      } else tscale.data[,"srt"] <- c(0,0,0,90,90,90)
-      
-      tscale.data[,"Depth"] <- c(1,1,1,2,3.5,3.5)
-      tscale.data[,"size"] <- c(1,1,1,0.8,0.8,0.8)
-
-  ## ROTATING THE NAMES
-  
-  if(!missing(erotate) && !is.numeric(erotate)){
-    return(cat("\n value for protate must be numeric."))
-  }
-  if(!missing(arotate) && !is.numeric(arotate)){
-    return(cat("\n value for arotate must be numeric."))
-  }
-  if(!missing(urotate) && !is.numeric(urotate)){
-    return(cat("\n value for urotate must be numeric."))
-  }
-  
-  if(!missing(erotate)){
-    tscale.data["Epoch","srt"] <- erotate
-  }
-  if(!missing(arotate)){
-    tscale.data["Age","srt"] <- arotate
-  }
-  if(!missing(urotate)){
-    tscale.data["User","srt"] <- urotate
-  }
-  
-  ## GEOLOGICAL RANGES OF TAXA
-
-  units<-rownames(tscale.data)[sort(match(units,rownames(tscale.data)),decreasing=T)] 
-    
-  if(!missing(x.lim) ){
-    x.lim <- sort(root.age - x.lim)
-  } else if(ranges == TRUE && !missing(ages) && missing(x.lim)){
-    x.lim <- (root.age - min(ages)) + diff(range(ages))*0.05
-  } else {
-    x.lim <- NULL
-  }
-  
-    timescale<-timescale[order(timescale[,1],decreasing=T),]
-    	timescale.rescaled <- timescale
-  		timescale.rescaled[,c("Start","End","Midpoint")] <- root.age - timescale[,c("Start","End","Midpoint")]
-
-  first_la <- tree$root.time - dist.nodes(tree)[1,Ntip(tree)+1]
+	if(length(units) == 1){
+		ts.width=0.15
+	}else{
+		if(length(units) == 2){
+			ts.width=0.2
+		}else{ 
+			if(length(units) >= 3){
+				ts.width=0.25
+				}
+			}
+		}
+	#
+	if(ranges && !missing(ages)){
+		missing.tip.names <- setdiff(tree$tip.label,row.names(ages))
+		if(length(missing.tip.names) > 0){						
+			cat(paste("\n",missing.tip.names,"not present in ages file, ranges set to FALSE"))
+			cat("\n ranges set to FALSE")
+			ranges <- FALSE
+			}		
+		}
+	#
+	timescales <- NULL
+	data(timescales,envir=environment())
+	timescale <- timescales[[vers]]
+	if(quat.rm){
+		timescale[(timescale[,"Midpoint"] < 3),"Name"] <- NA
+		}
 	
-    if(ranges==TRUE && missing(ages) == FALSE){
-      offset<-array(dim=length(tree$tip.label),data=1)
-       offset.correction <- diff(range(ages)) * 0.01 
-        taxon.ranges <- root.age - ages[,c("FAD","LAD")]
-         if(first_la != ages[1,"LAD"]){
-          if(!missing(label.offset)){
-           offset <- array(dim=length(ages[,"FAD"]),data=(ages[,"FAD"] - ages[,"LAD"])+label.offset)
-          } else {
-           offset <- array(dim=length(ages[,"FAD"]),data=(ages[,"FAD"] - ages[,"LAD"])+offset.correction)
-          }
-         }
-    } else if(!missing(label.offset)){
-      offset <- label.offset 
-    } else {
-      offset = 1
-    }
+	tscale.data<-matrix(ncol=3,nrow=6)
+	colnames(tscale.data) <-c("srt","Depth","size")
+	rownames(tscale.data) <-c("Eon","Era","Period","Epoch","Age","User")
+	if(direction == "upwards"){
+			tscale.data[,"srt"] <- c(90,90,90,0,0,0)
+	}else{
+		tscale.data[,"srt"] <- c(0,0,0,90,90,90)
+		}
+		
+	tscale.data[,"Depth"] <- c(1,1,1,2,3.5,3.5)
+	tscale.data[,"size"] <- c(1,1,1,0.8,0.8,0.8)
+
+	## ROTATING THE NAMES	
+	if(!missing(erotate) && !is.numeric(erotate)){
+		stop("value for protate must be numeric.")
+		}
+	if(!missing(arotate) && !is.numeric(arotate)){
+		stop("value for arotate must be numeric.")
+		}
+	if(!missing(urotate) && !is.numeric(urotate)){
+		stop("value for urotate must be numeric.")
+		}
+	########
+	if(!missing(erotate)){
+		tscale.data["Epoch","srt"] <- erotate
+		}
+	if(!missing(arotate)){
+		tscale.data["Age","srt"] <- arotate
+		}
+	if(!missing(urotate)){
+		tscale.data["User","srt"] <- urotate
+		}
+	
+	## GEOLOGICAL RANGES OF TAXA
+	#
+	units<-rownames(tscale.data)[
+		sort(match(units,rownames(tscale.data)),
+			decreasing=TRUE
+			)
+		] 
+	#
+	if(!missing(x.lim) ){
+		x.lim <- sort(root.age - x.lim)
+	} else {
+		if(ranges && !missing(ages) && missing(x.lim)){
+			x.lim <- (root.age - min(ages)) + diff(range(ages))*0.05
+		} else {
+			x.lim <- NULL
+			}
+		}
+	#
+	#####################
+	timescale<-timescale[order(timescale[,1],decreasing=TRUE),]
+	#
+	timescale.rescaled <- timescale
+	#
+	timescale.rescaled[,StartEndMid] <- root.age - timescale[,StartEndMid]
+	#
+	first_la <- tree$root.time - dist.nodes(tree)[1, Ntip(tree) + 1]
+	#
+	if(ranges && !missing(ages) ){
+		offset<-array(dim=length(tree$tip.label),data=1)
+		offset.correction <- diff(range(ages)) * 0.01 
+		taxon.ranges <- root.age - ages[,c("FAD","LAD")]
+		if(first_la != ages[1,"LAD"]){
+			if(!missing(label.offset)){
+				offset <- array(dim=length(ages[,"FAD"]),
+					data=(ages[,"FAD"] - ages[,"LAD"])
+						+ label.offset)
+			} else {
+				offset <- array(dim=length(ages[,"FAD"]),
+					data=(ages[,"FAD"] - ages[,"LAD"])
+						+ offset.correction)
+				}
+			}
+	}else{
+		if(!missing(label.offset)){
+			offset <- label.offset 
+		} else {
+			offset = 1
+			}
+		}
 
   ### ADDING A TIMESCALE
 
