@@ -25,75 +25,81 @@ geoscalePhylo<-function(
 		urotate,
 		...){
 	###############################################
-  
-  options <- as.list(match.call())
-   if(any(names(options) == "type")){
-     if(all(options$type != c("phylogram","cladogram","p","c"))){
-       return(cat("type must be either 'phylogram' or 'cladogram'."))
-     }
-   }
-  
-   if(all(direction != c("rightwards","upwards"))){
-      return(cat("direction must be either 'rightwards' or 'upwards', here set to 'rightwards'."))
-    }
-  
-  if(is.null(tree$root.time)){     
-    return(cat("\n tree$root.time is missing, check tree is time scaled."))
-  } else {root.age <- tree$root.time}
-  
-  if(boxes == "User" && any(units != "User")){
-    boxes <- "no"
-  }
-  
-  if(all(boxes != units)){
-    boxes <- "no"
-  }
-  
-  if(tick.scale == "User" && all(units != "User")){
-    tick.scale <- "myr"
-  }
-   
-  if(missing(ages) == FALSE){
-      ranges <- TRUE
-  } else{
-    ranges <- FALSE
-  }
-  
-  if(missing(user.scale) & any(units == "User")){
-    units <- units[units != "User"]
-    cat("\n user.scale not provided, 'Other' removed from units.")
-  }
-  
-  if(missing(ages) == FALSE){
-    ages<-ages[tree$tip.label,]    
-  }
-  
-  if(any(units == "User") & !missing(user.scale)){   
-    Midpoint <- matrix(ncol=1,nrow=length(user.scale[,1]))
-      Midpoint[,1] <- (user.scale[,"Start"] + user.scale[,"End"])/2
-        user.scale <- cbind(user.scale,Midpoint)  
-  }
-  
-  if(all(units != "Age") && boxes == "Age"){
-    boxes <- "no"
-  }
-  
-  units <- paste(toupper(substring(units,1,1)),substring(units,2),sep="")
-    
-  # Standardizing the names of temporal units
-  
-  units[units == "Eonothem"] <- "Eon"
-  units[units == "Erathem"] <- "Era"
-  units[units == "Series"] <- "Epoch"
-  units[units == "System"] <- "Period"  
-  units[units == "Stage"] <- "Age"
-    units <- unique(units)
-  
-  boxes[boxes == "Eonothem"] <- "Eon"
-  boxes[boxes == "Erathem"] <- "Era"
-  boxes[boxes == "Series"] <- "Epoch"
-  boxes[boxes == "System"] <- "Period"  
-  boxes[boxes == "Stage"] <- "Age"
+	options <- as.list(match.call())
+	StartEndMid <- c("Start","End","Midpoint")
+	################
+	if(any(names(options) == "type")){
+		if(all(options$type != c("phylogram","cladogram","p","c"))){
+			stop("type must be either 'phylogram' or 'cladogram'.")
+			}
+		}
+	##########
+	if(all(direction != c("rightwards","upwards"))){
+		stop("direction must be either 'rightwards' or 'upwards'")
+		}
+	############
+	if(is.null(tree$root.time)){		 
+		stop("\n tree$root.time is missing, check tree is time scaled.")
+	}else{
+		root.age <- tree$root.time
+		}
+	###########
+	if(boxes == "User" && any(units != "User")){
+		boxes <- "no"
+		}
+	#########
+	if(all(boxes != units)){
+		boxes <- "no"
+		}
+	########
+	if(tick.scale == "User" && all(units != "User")){
+		tick.scale <- "myr"
+		}
+	#########
+	if(!missing(ages)){
+			ranges <- TRUE
+	} else {
+		ranges <- FALSE
+		}
+	
+	if(missing(user.scale) & any(units == "User")){
+		units <- units[units != "User"]
+		cat("\n user.scale not provided, 'Other' removed from units.")
+		}
+	
+	if(!missing(ages)){
+		ages<-ages[tree$tip.label,]		
+		}
+	
+	if(any(units == "User") & !missing(user.scale)){	 
+		Midpoint <- matrix(ncol=1,nrow=length(user.scale[,1]))
+		Midpoint[,1] <- (user.scale[,"Start"] + user.scale[,"End"])/2
+		user.scale <- cbind(user.scale,Midpoint)	
+		}
+	
+	if(all(units != "Age") && boxes == "Age"){
+		boxes <- "no"
+		}
+	#
+	units <- paste(toupper(substring(units,1,1)),
+		substring(units,2),
+		sep="")	
+	#	
+	# Standardizing the names of temporal units
+	units[units == "Eonothem"] <- "Eon"
+	units[units == "Erathem"] <- "Era"
+	units[units == "Series"] <- "Epoch"
+	units[units == "System"] <- "Period"	
+	units[units == "Stage"] <- "Age"
+	#
+	units <- unique(units)
+	#
+	boxes[boxes == "Eonothem"] <- "Eon"
+	boxes[boxes == "Erathem"] <- "Era"
+	boxes[boxes == "Series"] <- "Epoch"
+	boxes[boxes == "System"] <- "Period"	
+	boxes[boxes == "Stage"] <- "Age"
+	#		
       
   if(length(units) == 1){
     ts.width=0.15
