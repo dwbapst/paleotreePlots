@@ -33,4 +33,8 @@ ibase <- function() "http://phylopic.org/api/a/image/"
 pbase <- function() "http://phylopic.org"
 
 
-
+# from https://scrogster.wordpress.com/2014/06/02/adding-phylopic-org-silhouettes-to-r-plots/
+foxurl<-"http://phylopic.org/assets/images/submissions/51b1b6e4-129d-41a6-bbbd-c3fab459c25f.1024.png"
+raburl<-"http://phylopic.org/assets/images/submissions/1e15411c-5394-4a9d-a209-76c8ac0c331d.1024.png"
+fox_logo <-  readPNG(getURLContent(foxurl))
+rab_logo <-  readPNG(getURLContent(raburl))
